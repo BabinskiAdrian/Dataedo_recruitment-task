@@ -24,7 +24,10 @@ public class RestApiManager(HttpRequestHandler requestHandler) : IDisposable
     {
     }
 
-    private RestApiManager(HttpClient client, bool _) : this(new HttpRequestHandler(client)) => this._createdClient = client;
+    private RestApiManager(HttpClient client, bool _) : this(new HttpRequestHandler(client))
+    {
+        this._createdClient = client;
+    }
 
     public RestApiManager(HttpClient client) : this(new HttpRequestHandler(client))
     {

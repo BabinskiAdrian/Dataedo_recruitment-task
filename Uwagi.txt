@@ -1,0 +1,23 @@
+
+Co spawdzić:
+1. FivetranClient
+1.1. Fetchers
+1.2. Infrastructure
+1.3. Models
+1.4 HttpRequestHandler
+Funkcja SemaphoreSlim() w konstruktorze, jako pierwszy argument powinna mieć wartość większą niż 0 lub użyć .Release() przed jakimkolwiek .Wait().
+
+Task _GetAsync, dodanie bloku try/finally oraz zastąpienie rekurencji pętlą by uniknąć problemów z ilością wywołań WaitAsync() oraz Release().
+
+Możnaby dodać limit ponownych prób/zapytań, w poprzedniej wersji jak i aktualnej, zapytania będą wysyłane aż do otrzymania odpowiedzi.
+
+!!!Task GetAsync, użycie właściwości .Result może spowodować zablokowanie wątku, co w połączeniu z metodą _GetAsync, która może się wykonywa w nieskońćzonej pętli spowoduje zablkowanie wątku.
+Zalecane dodanie do TtlDictionray Asynchroniczną metodę.
+
+
+1.5 RestApiManager
+Może jest to stylistyczna kwestia ale zmienił bym sposób przypisania wartości w konstruktorze dla "private RestApiManager"
+
+2. Import
+- Import/ConnectionSupport/FivetranConnectionSupport.cs
+- Import/Helpers/Fivetran/RestApiManagerWrapper.cs
