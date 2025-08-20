@@ -9,6 +9,7 @@ public class FivetranConnectionSupport : IConnectionSupport
     public const string ConnectorTypeCode = "FIVETRAN";
     private record FivetranConnectionDetailsForSelection(string ApiKey, string ApiSecret);
 
+    //AB
     public object? GetConnectionDetailsForSelection()
     {
         Console.Write("Provide your Fivetran API Key: ");
@@ -18,7 +19,24 @@ public class FivetranConnectionSupport : IConnectionSupport
 
         return new FivetranConnectionDetailsForSelection(apiKey, apiSecret);
     }
+    //a.
+    public object? GetConnectionDetailsForSelection_AB()
+    {
+        Console.Write("Provide your Fivetran API Key: ");
+        //a.
+        var apiKey = Console.ReadLine();
+        if(string.IsNullOrWhiteSpace(apiKey)) 
+            throw new ArgumentNullException();
 
+        Console.Write("Provide your Fivetran API Secret: ");
+        var apiSecret = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(apiSecret))
+            throw new ArgumentNullException();
+
+        return new FivetranConnectionDetailsForSelection(apiKey, apiSecret);
+    }
+
+    //AB checked
     public object GetConnection(object? connectionDetails, string? selectedToImport)
     {
         if (connectionDetails is not FivetranConnectionDetailsForSelection details)
@@ -26,14 +44,19 @@ public class FivetranConnectionSupport : IConnectionSupport
             throw new ArgumentException("Invalid connection details provided.");
         }
 
+        //a.
+        if(selectedToImport is null)
+            throw new ArgumentNullException(nameof(selectedToImport));
+
         return new RestApiManagerWrapper(
             new RestApiManager(
                 details.ApiKey,
                 details.ApiSecret,
                 TimeSpan.FromSeconds(40)),
-            selectedToImport ?? throw new ArgumentNullException(nameof(selectedToImport)));
+                selectedToImport);
     }
 
+    //AB done
     public void CloseConnection(object? connection)
     {
         switch (connection)
@@ -46,6 +69,18 @@ public class FivetranConnectionSupport : IConnectionSupport
                 break;
             default:
                 throw new ArgumentException("Invalid connection type provided.");
+        }
+    }
+    //a.
+    public void CloseConnection_AB(IDisposable connection)
+    {
+        if(connection is null)
+        {
+            throw new ArgumentNullException(nameof(connection), "Connection cannot be null.");
+        }   
+        else
+        {
+            connection.Dispose();
         }
     }
 
@@ -71,16 +106,16 @@ public class FivetranConnectionSupport : IConnectionSupport
         // bufforing for performance        
         //AB b.
         {
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine("Available groups in Fivetran account:");
+            var consoleOutputBufferSB = new System.Text.StringBuilder();
+            consoleOutputBufferSB.AppendLine("Available groups in Fivetran account:");
             var elementIndex = 1;
             foreach (var group in groups)
             {
-                sb.AppendLine($"{elementIndex++}. {group.Name} (ID: {group.Id})");
+                consoleOutputBufferSB.AppendLine($"{elementIndex++}. {group.Name} (ID: {group.Id})");
             }
-            sb.Append("Please select a group to import from (by number): ");
+            consoleOutputBufferSB.Append("Please select a group to import from (by number): ");
 
-            Console.Write(sb.ToString());
+            Console.Write(consoleOutputBufferSB.ToString());
         }
         
         //AB c.
@@ -97,6 +132,7 @@ public class FivetranConnectionSupport : IConnectionSupport
         return selectedGroup.Id;
     }
 
+    //AB checked
     public void RunImport(object? connection)
     {
         if (connection is not RestApiManagerWrapper restApiManagerWrapper)
@@ -115,22 +151,26 @@ public class FivetranConnectionSupport : IConnectionSupport
             throw new Exception("No connectors found in the selected group.");
         }
 
-        var allMappingsBuffer = "Lineage mappings:\n";
-        Parallel.ForEach(connectors, connector =>
+        //AB a.
         {
-            var connectorSchemas = restApiManager
-                .GetConnectorSchemasAsync(connector.Id, CancellationToken.None)
-                .Result;
-
-            foreach (var schema in connectorSchemas?.Schemas ?? [])
+            var allMappingsBufferSB = new System.Text.StringBuilder();
+            allMappingsBufferSB.AppendLine("Lineage mappings:");
+            Parallel.ForEach(connectors, connector =>
             {
-                foreach (var table in schema.Value?.Tables ?? [])
-                {
-                    allMappingsBuffer += $"  {connector.Id}: {schema.Key}.{table.Key} -> {schema.Value?.NameInDestination}.{table.Value.NameInDestination}\n";
-                }
-            }
-        });
+                var connectorSchemas = restApiManager
+                    .GetConnectorSchemasAsync(connector.Id, CancellationToken.None)
+                    .Result;
 
-        Console.WriteLine(allMappingsBuffer);
+                foreach (var schema in connectorSchemas?.Schemas ?? [])
+                {
+                    foreach (var table in schema.Value?.Tables ?? [])
+                    {
+                        allMappingsBufferSB.AppendLine($"  {connector.Id}: {schema.Key}.{table.Key} -> {schema.Value?.NameInDestination}.{table.Value.NameInDestination}");
+                    }
+                }
+            });
+
+            Console.Write(allMappingsBufferSB.ToString());
+        }
     }
 }

@@ -1,8 +1,12 @@
+Ogólne uwagi 
+- brak szczegółowych exception
+- 
 
-Co spawdzić:
+
+
 1. FivetranClient
 1.1. Fetchers
-Nic w fetchers?
+Nic w fetchers? Sprawdzić jescze raz!!!!!!!!
 
 1.2. Infrastructure
 1.2.1. FivetranHttpClient
@@ -30,4 +34,28 @@ Może jest to stylistyczna kwestia ale zmienił bym sposób przypisania wartośc
 
 2. Import
 2.1. FivetranConnectionSupport.cs
+
+2.1.1. public object? GetConnectionDetailsForSelection()
+a.b. Jeśli klucz api nie może być pustym polem/zawierać białe znaki, zastosować zamiast oryginału "public object? GetConnectionDetailsForSelection_AB()"
+Dodatkowo, rozwarzyć bardziej szczegółowe Exception()
+
+2.1.2. public object GetConnection(object? connectionDetails, string? selectedToImport)
+a. Sprawdzenie czy wartość jest nullem przed tworzeniem obiektów, trochę szybsze.
+
+2.1.3. public void CloseConnection(object? connection)
+a. Sugestia zmiany, jeśli funkcja ma tylko sprzątać i nic więcej niezalenie od typu wejściowego argumentu. Zastąpić oryginał modyfikacją "public void CloseConnection_AB(IDisposable connection)"
+
+
+2.1.4. public string SelectToImport(object? connectionDetails)
+a. linijka 64, utworzenie zmiennej by nie wywoływać raz .Any(), a następnym razem .Count()
+b. linijka 68, po co sklejać pusty string z pełnym, zamist od razu zadeklarować. Dodatkowo, dla większej ilości grup lepiej zastosować StringBuilder
+c. Można by pominąć w warunku sprawdzanie "string.IsNullOrWhiteSpace(input)" gdyż TryParse() też to sprawdzi. Chyba że jest to celowe podkreślenie dal czytelności kodu. 
+Dodatkowo, możnaby dać więcej specyficznych Exception dla każdego argumentu by dokąłdniej obsłużyć błąd.
+Dodatkowo, sprawdzić czy warunki występują od najczęściej występującego 
+
+2.1.5. public void RunImport(object? connection)
+a. Zastosowanie StringBuilder(). Jako że jest zastosowany na końcu 
+b. Uwaga, korzystonie z Async() metody oraz .Result
+
 2.2. RestApiManagerWrapper.cs
+a. Zastanowić się nad pełną implementacją Disposable Pattern.
