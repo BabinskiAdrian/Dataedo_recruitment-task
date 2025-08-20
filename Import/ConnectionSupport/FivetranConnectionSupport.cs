@@ -49,6 +49,7 @@ public class FivetranConnectionSupport : IConnectionSupport
         }
     }
 
+    //AB checked
     public string SelectToImport(object? connectionDetails)
     {
         if (connectionDetails is not FivetranConnectionDetailsForSelection details)
@@ -59,26 +60,35 @@ public class FivetranConnectionSupport : IConnectionSupport
         var groups = restApiManager
             .GetGroupsAsync(CancellationToken.None)
             .ToBlockingEnumerable();
-        if (!groups.Any())
+
+        //AB a.
+        var groupsCount = groups.Count();
+        if (groupsCount>0)
         {
             throw new Exception("No groups found in Fivetran account.");
         }
 
-        // bufforing for performance
-        var consoleOutputBuffer = "";
-        consoleOutputBuffer += "Available groups in Fivetran account:\n";
-        var elementIndex = 1;
-        foreach (var group in groups)
+        // bufforing for performance        
+        //AB b.
         {
-            consoleOutputBuffer += $"{elementIndex++}. {group.Name} (ID: {group.Id})\n";
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Available groups in Fivetran account:");
+            var elementIndex = 1;
+            foreach (var group in groups)
+            {
+                sb.AppendLine($"{elementIndex++}. {group.Name} (ID: {group.Id})");
+            }
+            sb.Append("Please select a group to import from (by number): ");
+
+            Console.Write(sb.ToString());
         }
-        consoleOutputBuffer += "Please select a group to import from (by number): ";
-        Console.Write(consoleOutputBuffer);
+        
+        //AB c.
         var input = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(input)
             || !int.TryParse(input, out var selectedIndex)
             || selectedIndex < 1
-            || selectedIndex > groups.Count())
+            || selectedIndex > groupsCount)
         {
             throw new ArgumentException("Invalid group selection.");
         }
