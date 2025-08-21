@@ -33,7 +33,7 @@ public class HttpRequestHandler
             url,
             () => this._GetAsync(url, cancellationToken).Result,
             TimeSpan.FromMinutes(60));
-        //because of .Result, is waiting for execution of _GetAsync method
+        //AB because of .Result, is waiting for execution of _GetAsync method
     }
 
     private async Task<HttpResponseMessage> _GetAsync(string url, CancellationToken cancellationToken)

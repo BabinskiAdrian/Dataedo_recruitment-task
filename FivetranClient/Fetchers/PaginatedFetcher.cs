@@ -7,6 +7,7 @@ namespace FivetranClient.Fetchers;
 
 public sealed class PaginatedFetcher(HttpRequestHandler requestHandler) : BaseFetcher(requestHandler)
 {
+    //AB a.
     private const ushort PageSize = 100;
 
     public IAsyncEnumerable<T> FetchItemsAsync<T>(string endpoint, CancellationToken cancellationToken)
@@ -15,6 +16,7 @@ public sealed class PaginatedFetcher(HttpRequestHandler requestHandler) : BaseFe
         return this.ProcessPagesRecursivelyAsync(endpoint, firstPageTask, cancellationToken);
     }
 
+    //AB
     private async Task<PaginatedRoot<T>?> FetchPageAsync<T>(
         string endpoint,
         CancellationToken cancellationToken,
@@ -23,7 +25,15 @@ public sealed class PaginatedFetcher(HttpRequestHandler requestHandler) : BaseFe
         var response = cursor is null
             ? await base.RequestHandler.GetAsync($"{endpoint}?limit={PageSize}", cancellationToken)
             : await base.RequestHandler.GetAsync($"{endpoint}?limit={PageSize}&cursor={WebUtility.UrlEncode(cursor)}", cancellationToken);
+        //b.
+        if(!response.IsSuccessStatusCode)
+            throw new HttpRequestException($"Expected a 2xx response but got {response.StatusCode} for endpoint: {endpoint}");
+
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        //c.
+        if(string.IsNullOrEmpty(content))
+            throw new JsonException($"Response content is empty for endpoint: {endpoint}");
+
         return JsonSerializer.Deserialize<PaginatedRoot<T>>(content, SerializerOptions);
     }
 
