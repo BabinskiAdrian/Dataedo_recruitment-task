@@ -1,17 +1,20 @@
-Ogólne uwagi 
-- brak szczegółowych exception
-
-
-
 1. FivetranClient
 1.1. Fetchers
-Nic w fetchers? Sprawdzić jescze raz!!!!!!!! No przecie że są, tylko trzeba dobrze okiem spojrzeć:
+1.1.1. BaseFetcher
+null
+
+1.1.2. NonPaginatedFetcher
+FetchAsync
+0. FetchPageAsync z PaginatedFetcher
+a. obsługa wyjątku
+b. obsługa wyjątku
 
 1.1.3. PaginatedFetcher
 a. Uwaga PageSize zadeklarowany jako ushort, a wykorzystywany tylko jako string.
-b. Czy ta deklaracja, przypisanie warości null jest konieczna?
+b. obsługa wyjątku
+c. obsługa wyjątku
+d. Czy nie lepiej zakończyć szybiciej tą metodę. Jeśli currentPage będzie null, żadna sensowan operacja nie zostanie wykonana. Pytanie tylko czy zwrócić yield czy excepion.
 
-Od tego zacząć private async IAsyncEnumerable<T> ProcessPagesRecursivelyAsync<T>(
 
 1.2. Infrastructure
 1.2.1. FivetranHttpClient

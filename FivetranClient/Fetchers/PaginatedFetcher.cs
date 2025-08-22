@@ -43,8 +43,16 @@ public sealed class PaginatedFetcher(HttpRequestHandler requestHandler) : BaseFe
         Task<PaginatedRoot<T>?> currentPageTask,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        //AB
         cancellationToken.ThrowIfCancellationRequested();
         var currentPage = await currentPageTask;
+        //d.
+        if (currentPage is null)
+        {
+            yield break;
+            //or
+            //throw new Exception();
+        }
         var nextCursor = currentPage?.Data?.NextCursor;
 
         IAsyncEnumerable<T>? nextResults = null;
